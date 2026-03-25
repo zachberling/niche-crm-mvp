@@ -4,7 +4,7 @@ export const ContactSchema = z.object({
   id: z.string().uuid(),
   firstName: z.string().min(1, 'First name required'),
   lastName: z.string().min(1, 'Last name required'),
-  email: z.string().email().optional(),
+  email: z.string().email('Invalid email').or(z.literal('')).optional(),
   phone: z.string().optional(),
   company: z.string().optional(),
   status: z.enum(['lead', 'active', 'inactive']),
