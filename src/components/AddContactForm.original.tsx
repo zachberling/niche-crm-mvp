@@ -1,4 +1,4 @@
-import { memo, useState, useCallback } from 'react'
+import React, { useState } from 'react'
 import { CreateContact, CreateContactSchema } from '@/types/contact'
 
 interface AddContactFormProps {
@@ -6,7 +6,7 @@ interface AddContactFormProps {
   onCancel?: () => void
 }
 
-export const AddContactForm = memo(({ onSubmit, onCancel }: AddContactFormProps) => {
+export function AddContactForm({ onSubmit, onCancel }: AddContactFormProps) {
   const [formData, setFormData] = useState<CreateContact>({
     firstName: '',
     lastName: '',
@@ -19,7 +19,7 @@ export const AddContactForm = memo(({ onSubmit, onCancel }: AddContactFormProps)
   
   const [errors, setErrors] = useState<Record<string, string>>({})
 
-  const handleSubmit = useCallback((e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     
     const result = CreateContactSchema.safeParse(formData)
@@ -37,18 +37,14 @@ export const AddContactForm = memo(({ onSubmit, onCancel }: AddContactFormProps)
     
     setErrors({})
     onSubmit(formData)
-  }, [formData, onSubmit])
+  }
 
-  const handleChange = useCallback((field: keyof CreateContact, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }))
-    setErrors(prev => {
-      if (prev[field]) {
-        const { [field]: _, ...rest } = prev
-        return rest
-      }
-      return prev
-    })
-  }, [])
+  const handleChange = (field: keyof CreateContact, value: string) => {
+    setFormData({ ...formData, [field]: value })
+    if (errors[field]) {
+      setErrors({ ...errors, [field]: '' })
+    }
+  }
 
   return (
     <form onSubmit={handleSubmit} className="add-contact-form">
@@ -147,6 +143,4 @@ export const AddContactForm = memo(({ onSubmit, onCancel }: AddContactFormProps)
       </div>
     </form>
   )
-})
-
-AddContactForm.displayName = 'AddContactForm'
+}

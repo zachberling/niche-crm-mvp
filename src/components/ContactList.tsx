@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { Contact } from '@/types/contact'
 
 interface ContactListProps {
@@ -5,7 +6,39 @@ interface ContactListProps {
   onContactClick?: (contact: Contact) => void
 }
 
-export function ContactList({ contacts, onContactClick }: ContactListProps) {
+interface ContactCardProps {
+  contact: Contact
+  onClick?: (contact: Contact) => void
+}
+
+const ContactCard = memo(({ contact, onClick }: ContactCardProps) => {
+  return (
+    <div
+      className="contact-card"
+      onClick={() => onClick?.(contact)}
+    >
+      <div className="contact-header">
+        <h3>{contact.firstName} {contact.lastName}</h3>
+        <span className={`status-badge status-${contact.status}`}>
+          {contact.status}
+        </span>
+      </div>
+      
+      {contact.company && (
+        <p className="contact-company">{contact.company}</p>
+      )}
+      
+      <div className="contact-details">
+        {contact.email && <span>{contact.email}</span>}
+        {contact.phone && <span>{contact.phone}</span>}
+      </div>
+    </div>
+  )
+})
+
+ContactCard.displayName = 'ContactCard'
+
+export const ContactList = memo(({ contacts, onContactClick }: ContactListProps) => {
   if (contacts.length === 0) {
     return (
       <div className="empty-state">
@@ -17,28 +50,14 @@ export function ContactList({ contacts, onContactClick }: ContactListProps) {
   return (
     <div className="contact-list">
       {contacts.map((contact) => (
-        <div
+        <ContactCard 
           key={contact.id}
-          className="contact-card"
-          onClick={() => onContactClick?.(contact)}
-        >
-          <div className="contact-header">
-            <h3>{contact.firstName} {contact.lastName}</h3>
-            <span className={`status-badge status-${contact.status}`}>
-              {contact.status}
-            </span>
-          </div>
-          
-          {contact.company && (
-            <p className="contact-company">{contact.company}</p>
-          )}
-          
-          <div className="contact-details">
-            {contact.email && <span>{contact.email}</span>}
-            {contact.phone && <span>{contact.phone}</span>}
-          </div>
-        </div>
+          contact={contact}
+          onClick={onContactClick}
+        />
       ))}
     </div>
   )
-}
+})
+
+ContactList.displayName = 'ContactList'
