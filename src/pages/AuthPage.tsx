@@ -22,7 +22,7 @@ export function AuthPage() {
       : await supabase.auth.signUp({ email, password })
     setLoading(false)
     if (error) return setError(error.message)
-    navigate('/dashboard')
+    navigate(mode === 'signup' ? '/onboarding' : '/dashboard')
   }
 
   return (

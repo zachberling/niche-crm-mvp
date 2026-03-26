@@ -1,12 +1,18 @@
 import { NavLink } from 'react-router-dom'
 import {
-  LayoutDashboard, Users, Activity, CreditCard, Settings, Zap,
+  LayoutDashboard, Users, Activity, CreditCard, Settings,
+  Zap, Wrench, Link2, Calendar,
 } from 'lucide-react'
 import { useCRMStore } from '@/store/crmStore'
+import { useHVACStore } from '@/store/hvacStore'
 
 const navItems = [
-  { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
+  { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
   { to: '/contacts', icon: Users, label: 'Contacts' },
+  { to: '/jobs', icon: Calendar, label: 'Jobs' },
+  { to: '/equipment', icon: Wrench, label: 'Equipment' },
+  { to: '/automations', icon: Zap, label: 'Automations' },
+  { to: '/integrations', icon: Link2, label: 'Integrations' },
   { to: '/activity', icon: Activity, label: 'Activity' },
   { to: '/pricing', icon: CreditCard, label: 'Pricing' },
   { to: '/settings', icon: Settings, label: 'Settings' },
@@ -14,6 +20,14 @@ const navItems = [
 
 export function Sidebar() {
   const contacts = useCRMStore((s) => s.contacts)
+  const { jobs, automations, integrations } = useHVACStore()
+
+  const badges: Record<string, number | undefined> = {
+    '/contacts': contacts.length || undefined,
+    '/jobs': jobs.filter((j) => j.status === 'scheduled' || j.status === 'in_progress').length || undefined,
+    '/automations': automations.filter((a) => a.enabled).length || undefined,
+    '/integrations': integrations.filter((i) => i.connected).length || undefined,
+  }
 
   return (
     <aside className="sidebar">
@@ -25,18 +39,17 @@ export function Sidebar() {
       </div>
 
       <nav className="sidebar-nav">
-        <div className="nav-section-label">Menu</div>
+        <div className="nav-section-label">HVAC CRM</div>
         {navItems.map(({ to, icon: Icon, label }) => (
           <NavLink
             key={to}
             to={to}
-            end={to === '/'}
             className={({ isActive }) => `nav-item${isActive ? ' active' : ''}`}
           >
             <Icon size={16} />
             {label}
-            {label === 'Contacts' && contacts.length > 0 && (
-              <span className="nav-item-badge">{contacts.length}</span>
+            {badges[to] !== undefined && (
+              <span className="nav-item-badge">{badges[to]}</span>
             )}
           </NavLink>
         ))}
@@ -44,14 +57,12 @@ export function Sidebar() {
 
       <div className="sidebar-footer">
         <div className="nav-item" style={{ cursor: 'default' }}>
-          <div
-            style={{
-              width: 28, height: 28, borderRadius: '50%',
-              background: 'var(--primary-light)', color: 'var(--primary)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontWeight: 600, fontSize: 12,
-            }}
-          >
+          <div style={{
+            width: 28, height: 28, borderRadius: '50%',
+            background: 'var(--primary-light)', color: 'var(--primary)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontWeight: 600, fontSize: 12,
+          }}>
             ZB
           </div>
           <div>
