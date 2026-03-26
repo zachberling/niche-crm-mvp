@@ -1,11 +1,9 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node'
-import Stripe from 'stripe'
+const Stripe = require('stripe')
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
-
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end()
 
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
   const { priceId, successUrl, cancelUrl } = req.body
 
   try {
@@ -18,7 +16,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       subscription_data: { trial_period_days: 14 },
     })
     res.json({ url: session.url })
-  } catch (err: any) {
+  } catch (err) {
     res.status(500).json({ error: err.message })
   }
 }
