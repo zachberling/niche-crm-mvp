@@ -3,6 +3,7 @@ import { Plus, Calendar, Clock, User, MapPin, Zap, X, ChevronDown } from 'lucide
 import { useHVACStore } from '@/store/hvacStore'
 import { useCRMStore } from '@/store/crmStore'
 import { Job, JobStatus, JobType, Priority } from '@/types/hvac'
+import { Contact } from '@/types/contact'
 import { format } from 'date-fns'
 
 const STATUS_COLORS: Record<JobStatus, string> = {
@@ -310,7 +311,7 @@ function JobForm({ onClose, contacts }: { onClose: () => void; contacts: ReturnT
 }
 
 function JobDetail({ job, contact, onClose, onUpdate }: {
-  job: Job; contact: any; onClose: () => void; onUpdate: (d: Partial<Job>) => void
+  job: Job; contact: Contact | undefined; onClose: () => void; onUpdate: (d: Partial<Job>) => void
 }) {
   return (
     <div className="detail-panel slide-in">

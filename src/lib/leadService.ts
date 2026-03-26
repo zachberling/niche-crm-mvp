@@ -248,50 +248,11 @@ class LeadService {
       (l) => l.stage !== 'won' && l.stage !== 'lost'
     )
 
-    const totalValue = allLeads.reduce(
-      (sum, l) => sum + (l.estimatedValue ?? 0),
-      0
-    )
-
-    const closedLeads = [...wonLeads, ...lostLeads]
-    const conversionRate =
-      closedLeads.length > 0 ? wonLeads.length / closedLeads.length : 0
-
-    // Calculate average days to close for won leads
-    const daysToClose = wonLeads
-      .map((l) => differenceInDays(l.lastStageChange, l.createdAt))
-      .filter((days) => days >= 0)
-
-    const averageDaysToClose =
-      daysToClose.length > 0
-        ? daysToClose.reduce((sum, days) => sum + days, 0) / daysToClose.length
-        : 0
-
-    // Count leads by stage
-    const leadsByStage: Record<LeadStage, number> = {
-      new: 0,
-      contacted: 0,
-      qualified: 0,
-      proposal: 0,
-      negotiation: 0,
-      won: 0,
-      lost: 0,
-    }
-
-    allLeads.forEach((lead) => {
-      leadsByStage[lead.stage]++
-    })
-
-    // Calculate average qualification score
-    const qualificationScores = activeLeads
-      .map((l) => l.qualification.score)
-      .filter((score) => score > 0)
-
-    const qualificationScore =
-      qualificationScores.length > 0
-        ? qualificationScores.reduce((sum, score) => sum + score, 0) /
-          qualificationScores.length
-        : 0
+    const totalValue = this.calculateTotalValue(allLeads)
+    const conversionRate = this.calculateConversionRate(wonLeads, lostLeads)
+    const averageDaysToClose = this.calculateAverageDaysToClose(wonLeads)
+    const leadsByStage = this.countLeadsByStage(allLeads)
+    const qualificationScore = this.calculateAverageQualificationScore(activeLeads)
 
     return {
       totalLeads: allLeads.length,
@@ -305,6 +266,68 @@ class LeadService {
       leadsByStage,
       qualificationScore,
     }
+  }
+
+  /**
+   * Calculate total estimated value of leads
+   */
+  private calculateTotalValue(leads: Lead[]): number {
+    return leads.reduce((sum, lead) => sum + (lead.estimatedValue ?? 0), 0)
+  }
+
+  /**
+   * Calculate conversion rate from closed leads
+   */
+  private calculateConversionRate(wonLeads: Lead[], lostLeads: Lead[]): number {
+    const closedLeads = [...wonLeads, ...lostLeads]
+    return closedLeads.length > 0 ? wonLeads.length / closedLeads.length : 0
+  }
+
+  /**
+   * Calculate average days to close for won leads
+   */
+  private calculateAverageDaysToClose(wonLeads: Lead[]): number {
+    const daysToClose = wonLeads
+      .map((lead) => differenceInDays(lead.lastStageChange, lead.createdAt))
+      .filter((days) => days >= 0)
+
+    return daysToClose.length > 0
+      ? daysToClose.reduce((sum, days) => sum + days, 0) / daysToClose.length
+      : 0
+  }
+
+  /**
+   * Count leads by stage
+   */
+  private countLeadsByStage(leads: Lead[]): Record<LeadStage, number> {
+    const leadsByStage: Record<LeadStage, number> = {
+      new: 0,
+      contacted: 0,
+      qualified: 0,
+      proposal: 0,
+      negotiation: 0,
+      won: 0,
+      lost: 0,
+    }
+
+    leads.forEach((lead) => {
+      leadsByStage[lead.stage]++
+    })
+
+    return leadsByStage
+  }
+
+  /**
+   * Calculate average qualification score for active leads
+   */
+  private calculateAverageQualificationScore(activeLeads: Lead[]): number {
+    const qualificationScores = activeLeads
+      .map((lead) => lead.qualification.score)
+      .filter((score) => score > 0)
+
+    return qualificationScores.length > 0
+      ? qualificationScores.reduce((sum, score) => sum + score, 0) / qualificationScores.length
+      : 0
   }
 
   /**

@@ -1,5 +1,11 @@
 import { Contact, CreateContact, ContactSchema } from '@/types/contact'
 import { v4 as uuidv4 } from 'uuid'
+import { 
+  mapToSortedArray, 
+  searchByFields, 
+  filterByField, 
+  countByField 
+} from './serviceUtils'
 
 /**
  * In-memory contact storage for MVP
@@ -31,17 +37,14 @@ class ContactService {
    * Get a contact by ID
    */
   async getById(id: string): Promise<Contact | null> {
-    const contact = this.contacts.get(id)
-    return contact || null
+    return this.contacts.get(id) ?? null
   }
 
   /**
    * Get all contacts
    */
   async getAll(): Promise<Contact[]> {
-    return Array.from(this.contacts.values()).sort(
-      (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
-    )
+    return mapToSortedArray(this.contacts, 'createdAt')
   }
 
   /**
@@ -79,48 +82,37 @@ class ContactService {
    * Search contacts by name, email, company, or phone
    */
   async search(query: string): Promise<Contact[]> {
-    const lowercaseQuery = query.toLowerCase().trim()
-    
-    if (!lowercaseQuery) {
+    if (!query.trim()) {
       return this.getAll()
     }
 
-    const results = Array.from(this.contacts.values()).filter(contact => {
-      const searchFields = [
-        contact.firstName,
-        contact.lastName,
-        contact.email,
-        contact.company,
-        contact.phone,
-      ].filter(Boolean).map(field => field!.toLowerCase())
-
-      return searchFields.some(field => field.includes(lowercaseQuery))
-    })
-
-    return results.sort(
-      (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
-    )
+    const allContacts = Array.from(this.contacts.values())
+    const searchFields: (keyof Contact)[] = ['firstName', 'lastName', 'email', 'company', 'phone']
+    return searchByFields(allContacts, query, searchFields)
   }
 
   /**
    * Filter contacts by status
    */
   async filterByStatus(status: Contact['status']): Promise<Contact[]> {
-    return Array.from(this.contacts.values())
-      .filter(contact => contact.status === status)
-      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+    const allContacts = Array.from(this.contacts.values())
+    return filterByField(allContacts, 'status', status).sort(
+      (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
+    )
   }
 
   /**
    * Get contact count by status
    */
   async getStatusCounts(): Promise<Record<Contact['status'], number>> {
-    const contacts = Array.from(this.contacts.values())
+    const allContacts = Array.from(this.contacts.values())
+    const statuses: Contact['status'][] = ['lead', 'active', 'inactive']
+    const counts = countByField(allContacts, 'status', statuses)
     
     return {
-      lead: contacts.filter(c => c.status === 'lead').length,
-      active: contacts.filter(c => c.status === 'active').length,
-      inactive: contacts.filter(c => c.status === 'inactive').length,
+      lead: counts.lead,
+      active: counts.active,
+      inactive: counts.inactive,
     }
   }
 

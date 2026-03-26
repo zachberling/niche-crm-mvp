@@ -1,5 +1,6 @@
 import { Activity, CreateActivity, ActivitySchema, ActivityType } from '@/types/activity'
 import { v4 as uuidv4 } from 'uuid'
+import { mapToSortedArray, filterByField, countByField } from './serviceUtils'
 
 /**
  * In-memory activity storage for MVP
@@ -29,35 +30,34 @@ class ActivityService {
    * Get an activity by ID
    */
   async getById(id: string): Promise<Activity | null> {
-    const activity = this.activities.get(id)
-    return activity || null
+    return this.activities.get(id) ?? null
   }
 
   /**
    * Get all activities
    */
   async getAll(): Promise<Activity[]> {
-    return Array.from(this.activities.values()).sort(
-      (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
-    )
+    return mapToSortedArray(this.activities, 'createdAt')
   }
 
   /**
    * Get activities for a specific contact
    */
   async getByContactId(contactId: string): Promise<Activity[]> {
-    return Array.from(this.activities.values())
-      .filter(activity => activity.contactId === contactId)
-      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+    const allActivities = Array.from(this.activities.values())
+    return filterByField(allActivities, 'contactId', contactId).sort(
+      (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
+    )
   }
 
   /**
    * Get activities by type
    */
   async getByType(type: ActivityType): Promise<Activity[]> {
-    return Array.from(this.activities.values())
-      .filter(activity => activity.type === type)
-      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+    const allActivities = Array.from(this.activities.values())
+    return filterByField(allActivities, 'type', type).sort(
+      (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
+    )
   }
 
   /**
@@ -65,7 +65,7 @@ class ActivityService {
    */
   async getByContactIdAndType(contactId: string, type: ActivityType): Promise<Activity[]> {
     return Array.from(this.activities.values())
-      .filter(activity => activity.contactId === contactId && activity.type === type)
+      .filter((activity) => activity.contactId === contactId && activity.type === type)
       .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
   }
 
@@ -73,24 +73,24 @@ class ActivityService {
    * Get recent activities across all contacts
    */
   async getRecent(limit: number = 10): Promise<Activity[]> {
-    return Array.from(this.activities.values())
-      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
-      .slice(0, limit)
+    return mapToSortedArray(this.activities, 'createdAt').slice(0, limit)
   }
 
   /**
    * Get activity count by type
    */
   async getTypeCounts(): Promise<Record<ActivityType, number>> {
-    const activities = Array.from(this.activities.values())
+    const allActivities = Array.from(this.activities.values())
+    const activityTypes: ActivityType[] = ['call', 'email', 'meeting', 'note', 'task', 'status_change']
+    const counts = countByField(allActivities, 'type', activityTypes)
     
     return {
-      call: activities.filter(a => a.type === 'call').length,
-      email: activities.filter(a => a.type === 'email').length,
-      meeting: activities.filter(a => a.type === 'meeting').length,
-      note: activities.filter(a => a.type === 'note').length,
-      task: activities.filter(a => a.type === 'task').length,
-      status_change: activities.filter(a => a.type === 'status_change').length,
+      call: counts.call,
+      email: counts.email,
+      meeting: counts.meeting,
+      note: counts.note,
+      task: counts.task,
+      status_change: counts.status_change,
     }
   }
 

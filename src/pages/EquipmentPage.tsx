@@ -3,6 +3,7 @@ import { Plus, X, AlertTriangle } from 'lucide-react'
 import { useHVACStore } from '@/store/hvacStore'
 import { useCRMStore } from '@/store/crmStore'
 import { Equipment } from '@/types/hvac'
+import { Contact } from '@/types/contact'
 import { format, differenceInDays, addMonths } from 'date-fns'
 
 const EQUIPMENT_ICONS: Record<string, string> = {
@@ -148,7 +149,7 @@ export function EquipmentPage() {
   )
 }
 
-function EquipmentForm({ onClose, contacts }: { onClose: () => void; contacts: any[] }) {
+function EquipmentForm({ onClose, contacts }: { onClose: () => void; contacts: Contact[] }) {
   const { addEquipment } = useHVACStore()
   const [form, setForm] = useState({
     contactId: contacts[0]?.id ?? '',
