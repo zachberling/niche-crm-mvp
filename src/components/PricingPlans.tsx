@@ -28,12 +28,9 @@ export const PricingPlans = () => {
         throw new Error('Stripe failed to load')
       }
 
-      const { error } = await stripe.redirectToCheckout({ sessionId })
-
-      if (error) {
-        console.error('Stripe Checkout error:', error)
-        alert('Failed to redirect to checkout. Please try again.')
-      }
+      // redirectToCheckout is deprecated; use window.location for session URL
+      // The createCheckoutSession API should return a URL directly
+      window.location.href = sessionId
     } catch (error) {
       console.error('Subscription error:', error)
       alert('Something went wrong. Please try again.')

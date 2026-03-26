@@ -16,7 +16,14 @@ export const getStripe = () => {
 }
 
 // Pricing tiers configuration
-export const PRICING_TIERS = {
+export const PRICING_TIERS: Record<string, {
+  name: string
+  price: number
+  priceId: string | undefined
+  features: string[]
+  limits: { contacts: number }
+  popular?: boolean
+}> = {
   starter: {
     name: 'Starter',
     price: 79,
@@ -27,9 +34,7 @@ export const PRICING_TIERS = {
       'Basic CRM features',
       'Mobile app access',
     ],
-    limits: {
-      contacts: 250,
-    },
+    limits: { contacts: 250 },
   },
   professional: {
     name: 'Professional',
@@ -43,9 +48,7 @@ export const PRICING_TIERS = {
       'API access',
       'Custom fields',
     ],
-    limits: {
-      contacts: 1000,
-    },
+    limits: { contacts: 1000 },
     popular: true,
   },
   premium: {
@@ -60,13 +63,11 @@ export const PRICING_TIERS = {
       'Dedicated account manager',
       'White-label options',
     ],
-    limits: {
-      contacts: Infinity,
-    },
+    limits: { contacts: Infinity },
   },
-} as const
+}
 
-export type PricingTier = keyof typeof PRICING_TIERS
+export type PricingTier = 'starter' | 'professional' | 'premium'
 
 // Stripe Checkout session creation
 export interface CheckoutSessionParams {
@@ -92,8 +93,8 @@ export const createCheckoutSession = async (params: CheckoutSessionParams) => {
     throw new Error('Failed to create checkout session')
   }
 
-  const { sessionId } = await response.json()
-  return sessionId
+  const { sessionId, url } = await response.json()
+  return url || sessionId
 }
 
 // Customer Portal (for managing subscriptions)
