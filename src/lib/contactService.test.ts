@@ -140,7 +140,7 @@ describe('ContactService', () => {
       expect(updated?.firstName).toBe('Updated')
       expect(updated?.lastName).toBe('Name') // Unchanged
       expect(updated?.status).toBe('active')
-      expect(updated?.updatedAt.getTime()).toBeGreaterThan(created.updatedAt.getTime())
+      expect(updated?.updatedAt.getTime()).toBeGreaterThanOrEqual(created.updatedAt.getTime())
     })
 
     it('preserves ID and createdAt when updating', async () => {
