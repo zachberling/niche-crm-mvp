@@ -82,11 +82,11 @@ Pick ONE vertical to build for first:
 ## 📋 PHASE 3: Core MVP Features (6 weeks)
 
 ### Week 1-2: Data Layer
-- [ ] Contact CRUD operations
-- [ ] Lead status management
-- [ ] Activity logging
-- [ ] Search and filtering
-- [ ] Tests for all core functions
+- [x] Contact CRUD operations
+- [x] Lead pipeline management (7 stages, qualification scoring, analytics)
+- [x] Activity logging
+- [x] Search and filtering
+- [x] Tests for all core functions (176 tests passing)
 
 ### Week 3-4: UI Layer
 - [ ] Contact list view
