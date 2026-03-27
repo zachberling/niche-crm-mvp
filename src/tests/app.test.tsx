@@ -38,51 +38,45 @@ describe('formatRelative', () => {
 
 // ── Store ──────────────────────────────────────────────────────────────────
 describe('CRM Store', () => {
-  it('adds a contact', () => {
-    const { addContact } = useCRMStore.getState()
-    const c = addContact({ firstName: 'Jane', lastName: 'Doe', status: 'lead' })
+  it('adds a contact', async () => {
+    const c = await useCRMStore.getState().addContact({ firstName: 'Jane', lastName: 'Doe', status: 'lead' })
     expect(useCRMStore.getState().contacts).toHaveLength(1)
     expect(c.firstName).toBe('Jane')
     expect(c.id).toBeTruthy()
   })
 
-  it('updates a contact', () => {
-    const { addContact, updateContact } = useCRMStore.getState()
-    const c = addContact({ firstName: 'Jane', lastName: 'Doe', status: 'lead' })
-    updateContact(c.id, { status: 'active' })
+  it('updates a contact', async () => {
+    const c = await useCRMStore.getState().addContact({ firstName: 'Jane', lastName: 'Doe', status: 'lead' })
+    await useCRMStore.getState().updateContact(c.id, { status: 'active' })
     expect(useCRMStore.getState().contacts[0].status).toBe('active')
   })
 
-  it('deletes a contact', () => {
-    const { addContact, deleteContact } = useCRMStore.getState()
-    const c = addContact({ firstName: 'Jane', lastName: 'Doe', status: 'lead' })
-    deleteContact(c.id)
+  it('deletes a contact', async () => {
+    const c = await useCRMStore.getState().addContact({ firstName: 'Jane', lastName: 'Doe', status: 'lead' })
+    await useCRMStore.getState().deleteContact(c.id)
     expect(useCRMStore.getState().contacts).toHaveLength(0)
   })
 
-  it('deletes contact activities when contact is deleted', () => {
-    const { addContact, addActivity, deleteContact } = useCRMStore.getState()
-    const c = addContact({ firstName: 'Jane', lastName: 'Doe', status: 'lead' })
-    addActivity({ contactId: c.id, type: 'note', title: 'Test note' })
-    deleteContact(c.id)
+  it('deletes contact activities when contact is deleted', async () => {
+    const c = await useCRMStore.getState().addContact({ firstName: 'Jane', lastName: 'Doe', status: 'lead' })
+    await useCRMStore.getState().addActivity({ contactId: c.id, type: 'note', title: 'Test note' })
+    await useCRMStore.getState().deleteContact(c.id)
     expect(useCRMStore.getState().activities).toHaveLength(0)
   })
 
-  it('adds an activity', () => {
-    const { addContact, addActivity, getContactActivities } = useCRMStore.getState()
-    const c = addContact({ firstName: 'Jane', lastName: 'Doe', status: 'lead' })
-    addActivity({ contactId: c.id, type: 'call', title: 'Follow-up call' })
-    expect(getContactActivities(c.id)).toHaveLength(1)
+  it('adds an activity', async () => {
+    const c = await useCRMStore.getState().addContact({ firstName: 'Jane', lastName: 'Doe', status: 'lead' })
+    await useCRMStore.getState().addActivity({ contactId: c.id, type: 'call', title: 'Follow-up call' })
+    expect(useCRMStore.getState().getContactActivities(c.id)).toHaveLength(1)
   })
 
-  it('filters activities by contact', () => {
-    const { addContact, addActivity, getContactActivities } = useCRMStore.getState()
-    const c1 = addContact({ firstName: 'Jane', lastName: 'Doe', status: 'lead' })
-    const c2 = addContact({ firstName: 'Bob', lastName: 'Smith', status: 'active' })
-    addActivity({ contactId: c1.id, type: 'note', title: 'Note for Jane' })
-    addActivity({ contactId: c2.id, type: 'email', title: 'Email to Bob' })
-    expect(getContactActivities(c1.id)).toHaveLength(1)
-    expect(getContactActivities(c1.id)[0].title).toBe('Note for Jane')
+  it('filters activities by contact', async () => {
+    const c1 = await useCRMStore.getState().addContact({ firstName: 'Jane', lastName: 'Doe', status: 'lead' })
+    const c2 = await useCRMStore.getState().addContact({ firstName: 'Bob', lastName: 'Smith', status: 'active' })
+    await useCRMStore.getState().addActivity({ contactId: c1.id, type: 'note', title: 'Note for Jane' })
+    await useCRMStore.getState().addActivity({ contactId: c2.id, type: 'email', title: 'Email to Bob' })
+    expect(useCRMStore.getState().getContactActivities(c1.id)).toHaveLength(1)
+    expect(useCRMStore.getState().getContactActivities(c1.id)[0].title).toBe('Note for Jane')
   })
 })
 
@@ -116,8 +110,8 @@ describe('ContactForm', () => {
     })
   })
 
-  it('pre-fills form when editing a contact', () => {
-    const contact = useCRMStore.getState().addContact({
+  it('pre-fills form when editing a contact', async () => {
+    const contact = await useCRMStore.getState().addContact({
       firstName: 'Alice', lastName: 'Smith', status: 'active', email: 'alice@test.com',
     })
     wrap(<ContactForm contact={contact} onClose={() => {}} />)
@@ -126,7 +120,7 @@ describe('ContactForm', () => {
   })
 
   it('updates contact on edit submit', async () => {
-    const contact = useCRMStore.getState().addContact({
+    const contact = await useCRMStore.getState().addContact({
       firstName: 'Alice', lastName: 'Smith', status: 'lead',
     })
     const onClose = vi.fn()
@@ -142,21 +136,21 @@ describe('ContactForm', () => {
 
 // ── Contacts Page ──────────────────────────────────────────────────────────
 describe('Contacts Page', () => {
-  it('shows empty state when no contacts', () => {
+  it('shows empty state when no contacts', async () => {
     wrap(<Contacts />)
     expect(screen.getByText(/no contacts yet/i)).toBeInTheDocument()
   })
 
-  it('renders contacts in table', () => {
-    useCRMStore.getState().addContact({ firstName: 'Jane', lastName: 'Doe', status: 'lead' })
-    useCRMStore.getState().addContact({ firstName: 'Bob', lastName: 'Smith', status: 'active' })
+  it('renders contacts in table', async () => {
+    await useCRMStore.getState().addContact({ firstName: 'Jane', lastName: 'Doe', status: 'lead' })
+    await useCRMStore.getState().addContact({ firstName: 'Bob', lastName: 'Smith', status: 'active' })
     wrap(<Contacts />)
     expect(screen.getAllByTestId('contact-row')).toHaveLength(2)
   })
 
   it('filters contacts by search', async () => {
-    useCRMStore.getState().addContact({ firstName: 'Jane', lastName: 'Doe', status: 'lead' })
-    useCRMStore.getState().addContact({ firstName: 'Bob', lastName: 'Smith', status: 'active' })
+    await useCRMStore.getState().addContact({ firstName: 'Jane', lastName: 'Doe', status: 'lead' })
+    await useCRMStore.getState().addContact({ firstName: 'Bob', lastName: 'Smith', status: 'active' })
     wrap(<Contacts />)
     fireEvent.change(screen.getByTestId('search-input'), { target: { value: 'jane' } })
     await waitFor(() => {
@@ -166,8 +160,8 @@ describe('Contacts Page', () => {
   })
 
   it('filters contacts by status chip', async () => {
-    useCRMStore.getState().addContact({ firstName: 'Jane', lastName: 'Doe', status: 'lead' })
-    useCRMStore.getState().addContact({ firstName: 'Bob', lastName: 'Smith', status: 'active' })
+    await useCRMStore.getState().addContact({ firstName: 'Jane', lastName: 'Doe', status: 'lead' })
+    await useCRMStore.getState().addContact({ firstName: 'Bob', lastName: 'Smith', status: 'active' })
     wrap(<Contacts />)
     fireEvent.click(screen.getByTestId('filter-active'))
     await waitFor(() => {
@@ -185,7 +179,7 @@ describe('Contacts Page', () => {
   })
 
   it('deletes a contact', async () => {
-    useCRMStore.getState().addContact({ firstName: 'Jane', lastName: 'Doe', status: 'lead' })
+    await useCRMStore.getState().addContact({ firstName: 'Jane', lastName: 'Doe', status: 'lead' })
     wrap(<Contacts />)
     fireEvent.click(screen.getByTestId('delete-btn'))
     await waitFor(() => {
@@ -196,15 +190,15 @@ describe('Contacts Page', () => {
 
 // ── Dashboard ──────────────────────────────────────────────────────────────
 describe('Dashboard', () => {
-  it('shows zero stats when empty', () => {
+  it('shows zero stats when empty', async () => {
     wrap(<Dashboard />)
     // Dashboard shows 0 for contacts, jobs, automations; $0 for revenue
     expect(screen.getAllByText('0').length).toBeGreaterThanOrEqual(3)
   })
 
-  it('shows correct contact count', () => {
-    useCRMStore.getState().addContact({ firstName: 'Jane', lastName: 'Doe', status: 'active' })
-    useCRMStore.getState().addContact({ firstName: 'Bob', lastName: 'Smith', status: 'lead' })
+  it('shows correct contact count', async () => {
+    await useCRMStore.getState().addContact({ firstName: 'Jane', lastName: 'Doe', status: 'active' })
+    await useCRMStore.getState().addContact({ firstName: 'Bob', lastName: 'Smith', status: 'lead' })
     wrap(<Dashboard />)
     expect(screen.getByText('2')).toBeInTheDocument() // total contacts
   })

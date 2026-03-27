@@ -19,9 +19,9 @@ beforeEach(() => {
 
 // ── HVAC Store ─────────────────────────────────────────────────────────────
 describe('HVAC Store', () => {
-  it('adds a job', () => {
-    const contact = useCRMStore.getState().addContact({ firstName: 'Jane', lastName: 'Doe', status: 'active' })
-    const job = useHVACStore.getState().addJob({
+  it('adds a job', async () => {
+    const contact = await useCRMStore.getState().addContact({ firstName: 'Jane', lastName: 'Doe', status: 'active' })
+    const job = await useHVACStore.getState().addJob({
       contactId: contact.id, type: 'maintenance', status: 'scheduled',
       priority: 'normal', title: 'AC Tune-Up', scheduledAt: new Date(),
     })
@@ -30,40 +30,40 @@ describe('HVAC Store', () => {
     expect(job.id).toBeTruthy()
   })
 
-  it('updates job status', () => {
-    const contact = useCRMStore.getState().addContact({ firstName: 'Jane', lastName: 'Doe', status: 'active' })
-    const job = useHVACStore.getState().addJob({
+  it('updates job status', async () => {
+    const contact = await useCRMStore.getState().addContact({ firstName: 'Jane', lastName: 'Doe', status: 'active' })
+    const job = await useHVACStore.getState().addJob({
       contactId: contact.id, type: 'repair', status: 'scheduled',
       priority: 'high', title: 'Furnace Repair', scheduledAt: new Date(),
     })
-    useHVACStore.getState().updateJob(job.id, { status: 'completed', invoiceAmount: 350 })
+    await useHVACStore.getState().updateJob(job.id, { status: 'completed', invoiceAmount: 350 })
     const updated = useHVACStore.getState().jobs[0]
     expect(updated.status).toBe('completed')
     expect(updated.invoiceAmount).toBe(350)
   })
 
-  it('deletes a job', () => {
-    const contact = useCRMStore.getState().addContact({ firstName: 'Jane', lastName: 'Doe', status: 'active' })
-    const job = useHVACStore.getState().addJob({
+  it('deletes a job', async () => {
+    const contact = await useCRMStore.getState().addContact({ firstName: 'Jane', lastName: 'Doe', status: 'active' })
+    const job = await useHVACStore.getState().addJob({
       contactId: contact.id, type: 'inspection', status: 'scheduled',
       priority: 'low', title: 'Annual Inspection', scheduledAt: new Date(),
     })
-    useHVACStore.getState().deleteJob(job.id)
+    await useHVACStore.getState().deleteJob(job.id)
     expect(useHVACStore.getState().jobs).toHaveLength(0)
   })
 
-  it('filters jobs by contact', () => {
-    const c1 = useCRMStore.getState().addContact({ firstName: 'Jane', lastName: 'Doe', status: 'active' })
-    const c2 = useCRMStore.getState().addContact({ firstName: 'Bob', lastName: 'Smith', status: 'active' })
-    useHVACStore.getState().addJob({ contactId: c1.id, type: 'maintenance', status: 'scheduled', priority: 'normal', title: 'Job 1', scheduledAt: new Date() })
-    useHVACStore.getState().addJob({ contactId: c2.id, type: 'repair', status: 'scheduled', priority: 'normal', title: 'Job 2', scheduledAt: new Date() })
+  it('filters jobs by contact', async () => {
+    const c1 = await useCRMStore.getState().addContact({ firstName: 'Jane', lastName: 'Doe', status: 'active' })
+    const c2 = await useCRMStore.getState().addContact({ firstName: 'Bob', lastName: 'Smith', status: 'active' })
+    await useHVACStore.getState().addJob({ contactId: c1.id, type: 'maintenance', status: 'scheduled', priority: 'normal', title: 'Job 1', scheduledAt: new Date() })
+    await useHVACStore.getState().addJob({ contactId: c2.id, type: 'repair', status: 'scheduled', priority: 'normal', title: 'Job 2', scheduledAt: new Date() })
     expect(useHVACStore.getState().getContactJobs(c1.id)).toHaveLength(1)
     expect(useHVACStore.getState().getContactJobs(c1.id)[0].title).toBe('Job 1')
   })
 
-  it('adds equipment with auto next service date', () => {
-    const contact = useCRMStore.getState().addContact({ firstName: 'Jane', lastName: 'Doe', status: 'active' })
-    const eq = useHVACStore.getState().addEquipment({
+  it('adds equipment with auto next service date', async () => {
+    const contact = await useCRMStore.getState().addContact({ firstName: 'Jane', lastName: 'Doe', status: 'active' })
+    const eq = await useHVACStore.getState().addEquipment({
       contactId: contact.id, type: 'ac_unit', brand: 'Carrier',
       lastServiceDate: new Date('2025-01-01'),
     })
@@ -71,13 +71,13 @@ describe('HVAC Store', () => {
     expect(eq.type).toBe('ac_unit')
   })
 
-  it('adds and toggles automation', () => {
-    useHVACStore.getState().addAutomation({
+  it('adds and toggles automation', async () => {
+    await useHVACStore.getState().addAutomation({
       name: 'Post-Job SMS', trigger: 'job_completed', action: 'send_sms',
       enabled: true, config: { message: 'Thanks!' },
     })
     expect(useHVACStore.getState().automations[0].enabled).toBe(true)
-    useHVACStore.getState().toggleAutomation(useHVACStore.getState().automations[0].id)
+    await useHVACStore.getState().toggleAutomation(useHVACStore.getState().automations[0].id)
     expect(useHVACStore.getState().automations[0].enabled).toBe(false)
   })
 
@@ -91,14 +91,14 @@ describe('HVAC Store', () => {
 
 // ── Jobs Page ──────────────────────────────────────────────────────────────
 describe('JobsPage', () => {
-  it('shows empty state', () => {
+  it('shows empty state', async () => {
     wrap(<JobsPage />)
     expect(screen.getByText(/no jobs yet/i)).toBeInTheDocument()
   })
 
-  it('renders jobs in table', () => {
-    const contact = useCRMStore.getState().addContact({ firstName: 'Jane', lastName: 'Doe', status: 'active' })
-    useHVACStore.getState().addJob({ contactId: contact.id, type: 'maintenance', status: 'scheduled', priority: 'normal', title: 'AC Tune-Up', scheduledAt: new Date() })
+  it('renders jobs in table', async () => {
+    const contact = await useCRMStore.getState().addContact({ firstName: 'Jane', lastName: 'Doe', status: 'active' })
+    await useHVACStore.getState().addJob({ contactId: contact.id, type: 'maintenance', status: 'scheduled', priority: 'normal', title: 'AC Tune-Up', scheduledAt: new Date() })
     wrap(<JobsPage />)
     expect(screen.getAllByTestId('job-row')).toHaveLength(1)
     expect(screen.getByText('AC Tune-Up')).toBeInTheDocument()
@@ -113,9 +113,9 @@ describe('JobsPage', () => {
   })
 
   it('filters by status', async () => {
-    const contact = useCRMStore.getState().addContact({ firstName: 'Jane', lastName: 'Doe', status: 'active' })
-    useHVACStore.getState().addJob({ contactId: contact.id, type: 'maintenance', status: 'scheduled', priority: 'normal', title: 'Job A', scheduledAt: new Date() })
-    useHVACStore.getState().addJob({ contactId: contact.id, type: 'repair', status: 'completed', priority: 'normal', title: 'Job B', scheduledAt: new Date() })
+    const contact = await useCRMStore.getState().addContact({ firstName: 'Jane', lastName: 'Doe', status: 'active' })
+    await useHVACStore.getState().addJob({ contactId: contact.id, type: 'maintenance', status: 'scheduled', priority: 'normal', title: 'Job A', scheduledAt: new Date() })
+    await useHVACStore.getState().addJob({ contactId: contact.id, type: 'repair', status: 'completed', priority: 'normal', title: 'Job B', scheduledAt: new Date() })
     wrap(<JobsPage />)
     // Use the filter-chip class specifically
     const chips = document.querySelectorAll('.filter-chip')
@@ -130,24 +130,24 @@ describe('JobsPage', () => {
 
 // ── Equipment Page ─────────────────────────────────────────────────────────
 describe('EquipmentPage', () => {
-  it('shows empty state', () => {
+  it('shows empty state', async () => {
     wrap(<EquipmentPage />)
     expect(screen.getByText(/no equipment tracked/i)).toBeInTheDocument()
   })
 
-  it('renders equipment in table', () => {
-    const contact = useCRMStore.getState().addContact({ firstName: 'Jane', lastName: 'Doe', status: 'active' })
-    useHVACStore.getState().addEquipment({ contactId: contact.id, type: 'ac_unit', brand: 'Carrier', model: 'XC21' })
+  it('renders equipment in table', async () => {
+    const contact = await useCRMStore.getState().addContact({ firstName: 'Jane', lastName: 'Doe', status: 'active' })
+    await useHVACStore.getState().addEquipment({ contactId: contact.id, type: 'ac_unit', brand: 'Carrier', model: 'XC21' })
     wrap(<EquipmentPage />)
     expect(screen.getAllByTestId('equipment-row')).toHaveLength(1)
     expect(screen.getByText(/Carrier XC21/)).toBeInTheDocument()
   })
 
-  it('shows service due warning', () => {
-    const contact = useCRMStore.getState().addContact({ firstName: 'Jane', lastName: 'Doe', status: 'active' })
+  it('shows service due warning', async () => {
+    const contact = await useCRMStore.getState().addContact({ firstName: 'Jane', lastName: 'Doe', status: 'active' })
     const pastDate = new Date()
     pastDate.setDate(pastDate.getDate() + 10)
-    useHVACStore.getState().addEquipment({ contactId: contact.id, type: 'furnace', brand: 'Trane', nextServiceDate: pastDate })
+    await useHVACStore.getState().addEquipment({ contactId: contact.id, type: 'furnace', brand: 'Trane', nextServiceDate: pastDate })
     wrap(<EquipmentPage />)
     expect(screen.getAllByText(/service due soon/i).length).toBeGreaterThan(0)
   })
@@ -155,7 +155,7 @@ describe('EquipmentPage', () => {
 
 // ── Automations Page ───────────────────────────────────────────────────────
 describe('AutomationsPage', () => {
-  it('shows empty state', () => {
+  it('shows empty state', async () => {
     wrap(<AutomationsPage />)
     expect(screen.getByText(/no automations yet/i)).toBeInTheDocument()
   })
@@ -173,7 +173,7 @@ describe('AutomationsPage', () => {
   })
 
   it('toggles automation on/off', async () => {
-    useHVACStore.getState().addAutomation({
+    await useHVACStore.getState().addAutomation({
       name: 'Test Rule', trigger: 'job_completed', action: 'send_sms',
       enabled: true, config: {},
     })
@@ -189,7 +189,7 @@ describe('AutomationsPage', () => {
 
 // ── Integrations Page ──────────────────────────────────────────────────────
 describe('IntegrationsPage', () => {
-  it('renders all integrations', () => {
+  it('renders all integrations', async () => {
     wrap(<IntegrationsPage />)
     expect(screen.getByText('Twilio SMS')).toBeInTheDocument()
     expect(screen.getByText('Slack')).toBeInTheDocument()

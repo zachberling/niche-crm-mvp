@@ -32,7 +32,7 @@ export function LandingPage() {
       <nav style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 5%', height: 64, borderBottom: '1px solid #2a2d3e', position: 'sticky', top: 0, background: 'rgba(15,17,23,0.95)', backdropFilter: 'blur(8px)', zIndex: 50 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <div style={{ width: 32, height: 32, background: '#6366f1', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>❄️</div>
-          <span style={{ fontWeight: 700, fontSize: 18 }}>NicheCRM</span>
+          <span style={{ fontWeight: 700, fontSize: 18 }}>Discsentia</span>
         </div>
         <div style={{ display: 'flex', gap: 12 }}>
           <button onClick={() => navigate('/auth?mode=login')} style={ghostBtn}>Sign In</button>
@@ -134,7 +134,7 @@ export function LandingPage() {
       {/* CTA */}
       <section style={{ textAlign: 'center', padding: '80px 5%', background: 'linear-gradient(135deg, rgba(99,102,241,0.15) 0%, rgba(99,102,241,0.05) 100%)', borderTop: '1px solid #2a2d3e' }}>
         <h2 style={{ fontSize: 32, fontWeight: 700, marginBottom: 16 }}>Ready to grow your HVAC business?</h2>
-        <p style={{ color: '#8b92a9', fontSize: 16, marginBottom: 32 }}>Join 500+ HVAC contractors already using NicheCRM</p>
+        <p style={{ color: '#8b92a9', fontSize: 16, marginBottom: 32 }}>Join 500+ HVAC contractors already using Discsentia</p>
         <button onClick={() => navigate('/auth?mode=signup')} style={{ ...primaryBtn, padding: '14px 40px', fontSize: 16 }}>
           Start Your Free Trial <ArrowRight size={16} />
         </button>
@@ -144,9 +144,9 @@ export function LandingPage() {
       <footer style={{ padding: '24px 5%', borderTop: '1px solid #2a2d3e', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <div style={{ width: 24, height: 24, background: '#6366f1', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12 }}>❄️</div>
-          <span style={{ fontWeight: 600 }}>NicheCRM</span>
+          <span style={{ fontWeight: 600 }}>Discsentia</span>
         </div>
-        <div style={{ color: '#4a5068', fontSize: 13 }}>© 2026 NicheCRM. Built for HVAC professionals.</div>
+        <div style={{ color: '#4a5068', fontSize: 13 }}>© 2026 Discsentia. Built for HVAC professionals.</div>
         <div style={{ display: 'flex', gap: 20 }}>
           {['Privacy', 'Terms', 'Support'].map(l => <a key={l} href="#" style={{ color: '#8b92a9', fontSize: 13, textDecoration: 'none' }}>{l}</a>)}
         </div>

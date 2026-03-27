@@ -35,7 +35,7 @@ export function Sidebar() {
         <div className="sidebar-logo-icon">
           <Zap size={18} color="white" />
         </div>
-        <span className="sidebar-logo-text">NicheCRM</span>
+        <span className="sidebar-logo-text">Discsentia</span>
       </div>
 
       <nav className="sidebar-nav">

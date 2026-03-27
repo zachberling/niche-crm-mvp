@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import * as Sentry from '@sentry/react'
+import { useEffect } from 'react'
 import { Sidebar } from '@/components/Sidebar'
 import { ProtectedRoute } from '@/components/ProtectedRoute'
 import { LandingPage } from '@/pages/LandingPage'
@@ -14,8 +15,18 @@ import { IntegrationsPage } from '@/pages/IntegrationsPage'
 import { ActivityPage } from '@/pages/ActivityPage'
 import { Pricing } from '@/pages/Pricing'
 import { SettingsPage } from '@/pages/SettingsPage'
+import { useCRMStore } from '@/store/crmStore'
+import { useHVACStore } from '@/store/hvacStore'
 
 function AppLayout() {
+  const loadCRM = useCRMStore((s) => s.load)
+  const loadHVAC = useHVACStore((s) => s.load)
+
+  useEffect(() => {
+    loadCRM()
+    loadHVAC()
+  }, [])
+
   return (
     <div className="layout">
       <Sidebar />
