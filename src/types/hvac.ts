@@ -16,10 +16,23 @@ export const JobSchema = z.object({
   completedAt: z.date().optional(),
   technicianName: z.string().optional(),
   address: z.string().optional(),
-  estimatedDuration: z.number().optional(), // minutes
+  estimatedDuration: z.number().optional(),
   actualDuration: z.number().optional(),
   invoiceAmount: z.number().optional(),
   notes: z.string().optional(),
+  checklistItems: z.array(z.object({
+    id: z.string(),
+    label: z.string(),
+    checked: z.boolean(),
+  })).optional(),
+  estimateLines: z.array(z.object({
+    id: z.string(),
+    description: z.string(),
+    qty: z.number(),
+    unitPrice: z.number(),
+  })).optional(),
+  estimateStatus: z.enum(['draft', 'sent', 'approved', 'declined']).optional(),
+  clientToken: z.string().optional(), // for shareable client status link
   createdAt: z.date(),
 })
 

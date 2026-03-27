@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import React, { useState, useMemo } from 'react'
 import { Plus, Calendar, Clock, User, MapPin, Zap, X, ChevronDown } from 'lucide-react'
 import { useHVACStore } from '@/store/hvacStore'
 import { useCRMStore } from '@/store/crmStore'
@@ -6,6 +6,7 @@ import { Job, JobStatus, JobType, Priority } from '@/types/hvac'
 import { Contact } from '@/types/contact'
 import { format } from 'date-fns'
 import { fireAutomations, contactContext } from '@/lib/automationEngine'
+import { JobChecklist } from '@/components/JobChecklist'
 
 const STATUS_COLORS: Record<JobStatus, string> = {
   scheduled: 'badge-lead',
@@ -177,33 +178,70 @@ export function JobsPage() {
 function StatusDropdown({ value, onChange }: { value: JobStatus; onChange: (s: JobStatus) => void }) {
   const [open, setOpen] = useState(false)
   const statuses: JobStatus[] = ['scheduled', 'en_route', 'in_progress', 'completed', 'cancelled', 'no_show']
+
+  // Close on outside click
+  const ref = React.useRef<HTMLDivElement>(null)
+  React.useEffect(() => {
+    if (!open) return
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [open])
+
   return (
-    <div style={{ position: 'relative' }}>
+    <div ref={ref} style={{ position: 'relative', display: 'inline-block' }}>
       <button
         className={`badge ${STATUS_COLORS[value]}`}
-        style={{ cursor: 'pointer', border: 'none', gap: 4 }}
+        style={{ cursor: 'pointer', border: 'none', gap: 4, whiteSpace: 'nowrap' }}
         onClick={(e) => { e.stopPropagation(); setOpen(!open) }}
       >
         {STATUS_LABELS[value]} <ChevronDown size={10} />
       </button>
       {open && (
-        <div style={{
-          position: 'absolute', top: '100%', left: 0, zIndex: 10,
-          background: 'var(--bg-card)', border: '1px solid var(--border)',
-          borderRadius: 'var(--radius-sm)', minWidth: 140, boxShadow: 'var(--shadow)',
-        }}>
+        <div
+          onClick={(e) => e.stopPropagation()}
+          style={{
+            position: 'fixed',
+            zIndex: 9999,
+            background: 'var(--bg-card)',
+            border: '1px solid var(--border)',
+            borderRadius: 'var(--radius)',
+            minWidth: 160,
+            boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+            overflow: 'hidden',
+            // Position relative to button using JS below
+          }}
+          ref={(el) => {
+            if (!el || !ref.current) return
+            const btn = ref.current.querySelector('button')!
+            const rect = btn.getBoundingClientRect()
+            const spaceBelow = window.innerHeight - rect.bottom
+            if (spaceBelow < 220) {
+              el.style.top = `${rect.top - el.offsetHeight - 4}px`
+            } else {
+              el.style.top = `${rect.bottom + 4}px`
+            }
+            el.style.left = `${rect.left}px`
+          }}
+        >
           {statuses.map((s) => (
-            <button key={s} style={{
-              display: 'block', width: '100%', textAlign: 'left',
-              padding: '8px 12px', background: 'none', border: 'none',
-              color: 'var(--text)', cursor: 'pointer', fontSize: 13,
-              fontFamily: 'var(--font)',
-            }}
+            <button
+              key={s}
+              style={{
+                display: 'flex', alignItems: 'center', width: '100%', textAlign: 'left',
+                padding: '9px 14px', background: s === value ? 'var(--bg-hover)' : 'none',
+                border: 'none', color: 'var(--text)', cursor: 'pointer',
+                fontSize: 13, fontFamily: 'var(--font)', gap: 8,
+              }}
               onClick={(e) => { e.stopPropagation(); onChange(s); setOpen(false) }}
               onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--bg-hover)')}
-              onMouseLeave={(e) => (e.currentTarget.style.background = 'none')}
+              onMouseLeave={(e) => (e.currentTarget.style.background = s === value ? 'var(--bg-hover)' : 'none')}
             >
-              {STATUS_LABELS[s]}
+              <span className={`badge ${STATUS_COLORS[s]}`} style={{ fontSize: 11, padding: '2px 8px' }}>
+                {STATUS_LABELS[s]}
+              </span>
             </button>
           ))}
         </div>
@@ -344,6 +382,9 @@ function JobDetail({ job, contact, onClose, onUpdate }: {
             <p style={{ fontSize: 13, color: 'var(--text-muted)' }}>{job.description}</p>
           </div>
         )}
+        <div className="detail-section">
+          <JobChecklist job={job} onUpdate={onUpdate} />
+        </div>
         {job.invoiceAmount && (
           <div className="detail-section">
             <div className="detail-section-title">Invoice</div>

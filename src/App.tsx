@@ -16,6 +16,8 @@ import { ActivityPage } from '@/pages/ActivityPage'
 import { Pricing } from '@/pages/Pricing'
 import { SettingsPage } from '@/pages/SettingsPage'
 import { ExportPage } from '@/pages/ExportPage'
+import { EstimatesPage } from '@/pages/EstimatesPage'
+import { ClientStatusPage } from '@/pages/ClientStatusPage'
 import { useCRMStore } from '@/store/crmStore'
 import { useHVACStore } from '@/store/hvacStore'
 
@@ -41,6 +43,7 @@ function AppLayout() {
           <Route path="/integrations" element={<IntegrationsPage />} />
           <Route path="/activity" element={<ActivityPage />} />
           <Route path="/export" element={<ExportPage />} />
+          <Route path="/estimates" element={<EstimatesPage />} />
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/settings" element={<SettingsPage />} />
         </Routes>
@@ -56,6 +59,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/auth" element={<AuthPage />} />
+          <Route path="/client/:token" element={<ClientStatusPage />} />
           <Route path="/onboarding" element={<ProtectedRoute><OnboardingPage /></ProtectedRoute>} />
           <Route path="/*" element={<ProtectedRoute><AppLayout /></ProtectedRoute>} />
         </Routes>

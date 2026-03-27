@@ -31,16 +31,20 @@ export function Pricing() {
   const [error, setError] = useState<string | null>(null)
 
   const handleSubscribe = async (plan: typeof plans[0]) => {
-    if (!plan.priceId) {
-      setError('Stripe is not configured. Add VITE_STRIPE_*_PRICE_ID env vars.')
+    if (!plan.priceId || plan.priceId.startsWith('price_') && plan.priceId.includes('placeholder')) {
+      setError('Stripe price IDs are not configured. Add real VITE_STRIPE_*_PRICE_ID env vars.')
       return
     }
     setLoading(plan.name)
     setError(null)
     try {
-      const res = await fetch('/api/create-checkout-session', {
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+      const res = await fetch(`${supabaseUrl}/functions/v1/create-checkout-session`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+        },
         body: JSON.stringify({
           priceId: plan.priceId,
           successUrl: `${window.location.origin}/pricing?success=1`,
@@ -53,7 +57,7 @@ export function Pricing() {
       } else {
         setError(data.error || 'Failed to start checkout.')
       }
-    } catch (e) {
+    } catch {
       setError('Network error. Please try again.')
     } finally {
       setLoading(null)

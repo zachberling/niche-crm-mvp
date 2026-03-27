@@ -37,110 +37,130 @@ export function Dashboard() {
 
   return (
     <>
-      <div className="topbar">
+      <header className="topbar">
         <h1 className="topbar-title">Dashboard</h1>
-        <button className="btn btn-primary btn-sm" onClick={() => navigate('/jobs')}>
-          <Calendar size={14} /> Schedule Job
+        <button className="btn btn-primary btn-sm" onClick={() => navigate('/jobs')} aria-label="Schedule a new job">
+          <Calendar size={14} aria-hidden="true" /> Schedule Job
         </button>
-      </div>
+      </header>
 
-      <div className="page-content fade-in">
+      <main className="page-content fade-in" id="main-content">
         {/* Alerts */}
         {stats.serviceDue > 0 && (
-          <div style={{
-            background: 'var(--warning-light)', border: '1px solid var(--warning)',
-            borderRadius: 'var(--radius)', padding: '10px 16px', marginBottom: 20,
-            display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer',
-          }} onClick={() => navigate('/equipment')}>
-            <AlertTriangle size={16} color="var(--warning)" />
+          <div
+            role="alert"
+            style={{
+              background: 'var(--warning-light)', border: '1px solid var(--warning)',
+              borderRadius: 'var(--radius)', padding: '12px 16px', marginBottom: 20,
+              display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer',
+            }}
+            onClick={() => navigate('/equipment')}
+            onKeyDown={(e) => e.key === 'Enter' && navigate('/equipment')}
+            tabIndex={0}
+            aria-label={`${stats.serviceDue} equipment units due for service. Click to view.`}
+          >
+            <AlertTriangle size={16} color="var(--warning)" aria-hidden="true" />
             <span style={{ fontSize: 13, color: 'var(--warning)', fontWeight: 500 }}>
               {stats.serviceDue} equipment unit{stats.serviceDue > 1 ? 's' : ''} due for service
             </span>
-            <ArrowRight size={14} color="var(--warning)" style={{ marginLeft: 'auto' }} />
+            <ArrowRight size={14} color="var(--warning)" style={{ marginLeft: 'auto' }} aria-hidden="true" />
           </div>
         )}
 
         {/* Stats */}
-        <div className="stats-grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)', marginBottom: 24 }}>
+        <section aria-label="Key metrics" className="stats-grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)', marginBottom: 24 }}>
           <StatCard label="Total Contacts" value={stats.contacts} icon={<Users size={16} />} onClick={() => navigate('/contacts')} />
           <StatCard label="Active Jobs" value={stats.activeJobs} icon={<Calendar size={16} />} color="primary" onClick={() => navigate('/jobs')} />
           <StatCard label="Revenue" value={`$${stats.revenue.toLocaleString()}`} icon={<TrendingUp size={16} />} color="success" />
           <StatCard label="Automations" value={stats.activeAutomations} icon={<Zap size={16} />} color="warning" onClick={() => navigate('/automations')} />
-        </div>
+        </section>
 
         <div className="dashboard-grid">
           {/* Recent Jobs */}
-          <div className="card">
+          <section className="card" aria-label="Recent jobs">
             <div className="card-header">
-              <span className="card-title">Recent Jobs</span>
-              <button className="btn btn-ghost btn-sm" onClick={() => navigate('/jobs')}>
-                View all <ArrowRight size={13} />
+              <h2 className="card-title">Recent Jobs</h2>
+              <button className="btn btn-ghost btn-sm" onClick={() => navigate('/jobs')} aria-label="View all jobs">
+                View all <ArrowRight size={13} aria-hidden="true" />
               </button>
             </div>
             {recentJobs.length === 0 ? (
               <div className="empty-state" style={{ padding: '24px 0' }}>
-                <Calendar size={24} style={{ opacity: 0.3 }} />
+                <Calendar size={24} style={{ opacity: 0.3 }} aria-hidden="true" />
                 <p>No jobs scheduled</p>
               </div>
             ) : (
-              recentJobs.map((job) => {
-                const contact = contacts.find((c) => c.id === job.contactId)
-                return (
-                  <div key={job.id} style={{
-                    display: 'flex', alignItems: 'center', gap: 10,
-                    padding: '10px 0', borderBottom: '1px solid var(--border)',
-                    cursor: 'pointer',
-                  }} onClick={() => navigate('/jobs')}>
-                    <span style={{ fontSize: 18 }}>
-                      {job.type === 'emergency' ? '🚨' : job.type === 'maintenance' ? '🔧' : job.type === 'repair' ? '🛠️' : '📋'}
-                    </span>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontWeight: 500, fontSize: 13 }}>{job.title}</div>
-                      <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>
-                        {contact?.firstName} {contact?.lastName}
-                      </div>
-                    </div>
-                    <span className={`badge badge-${job.status === 'completed' ? 'active' : job.status === 'cancelled' ? 'inactive' : 'lead'}`} style={{ fontSize: 11 }}>
-                      {job.status}
-                    </span>
-                  </div>
-                )
-              })
+              <ul style={{ listStyle: 'none' }} role="list">
+                {recentJobs.map((job) => {
+                  const contact = contacts.find((c) => c.id === job.contactId)
+                  return (
+                    <li key={job.id}>
+                      <button
+                        style={{
+                          display: 'flex', alignItems: 'center', gap: 10, width: '100%',
+                          padding: '10px 0', borderBottom: '1px solid var(--border)',
+                          cursor: 'pointer', background: 'none', border: 'none',
+                          textAlign: 'left', color: 'inherit', fontFamily: 'inherit',
+                        }}
+                        onClick={() => navigate('/jobs')}
+                        aria-label={`${job.title} for ${contact?.firstName} ${contact?.lastName}, status: ${job.status}`}
+                      >
+                        <span style={{ fontSize: 18 }} aria-hidden="true">
+                          {job.type === 'emergency' ? '🚨' : job.type === 'maintenance' ? '🔧' : job.type === 'repair' ? '🛠️' : '📋'}
+                        </span>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontWeight: 500, fontSize: 13 }}>{job.title}</div>
+                          <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+                            {contact?.firstName} {contact?.lastName}
+                          </div>
+                        </div>
+                        <span className={`badge badge-${job.status === 'completed' ? 'active' : job.status === 'cancelled' ? 'inactive' : 'lead'}`} style={{ fontSize: 11 }}>
+                          {job.status}
+                        </span>
+                      </button>
+                    </li>
+                  )
+                })}
+              </ul>
             )}
-          </div>
+          </section>
 
           {/* Recent Activity */}
-          <div className="card">
+          <section className="card" aria-label="Recent activity">
             <div className="card-header">
-              <span className="card-title">Recent Activity</span>
-              <button className="btn btn-ghost btn-sm" onClick={() => navigate('/activity')}>
-                View all <ArrowRight size={13} />
+              <h2 className="card-title">Recent Activity</h2>
+              <button className="btn btn-ghost btn-sm" onClick={() => navigate('/activity')} aria-label="View all activity">
+                View all <ArrowRight size={13} aria-hidden="true" />
               </button>
             </div>
             {recentActivities.length === 0 ? (
               <div className="empty-state" style={{ padding: '24px 0' }}>
-                <Activity size={24} style={{ opacity: 0.3 }} />
+                <Activity size={24} style={{ opacity: 0.3 }} aria-hidden="true" />
                 <p>No activity yet</p>
               </div>
             ) : (
-              recentActivities.map((a) => (
-                <div key={a.id} className="activity-item">
-                  <div className={`activity-icon activity-icon-${a.type}`}>
-                    {a.type === 'call' ? '📞' : a.type === 'email' ? '✉️' : a.type === 'meeting' ? '🤝' : '📝'}
-                  </div>
-                  <div className="activity-content">
-                    <div className="activity-title">{a.title}</div>
-                    <div className="activity-time">{formatRelative(new Date(a.createdAt))}</div>
-                  </div>
-                </div>
-              ))
+              <ul style={{ listStyle: 'none' }} role="list">
+                {recentActivities.map((a) => (
+                  <li key={a.id} className="activity-item">
+                    <div className={`activity-icon activity-icon-${a.type}`} aria-hidden="true">
+                      {a.type === 'call' ? '📞' : a.type === 'email' ? '✉️' : a.type === 'meeting' ? '🤝' : '📝'}
+                    </div>
+                    <div className="activity-content">
+                      <div className="activity-title">{a.title}</div>
+                      <time className="activity-time" dateTime={new Date(a.createdAt).toISOString()}>
+                        {formatRelative(new Date(a.createdAt))}
+                      </time>
+                    </div>
+                  </li>
+                ))}
+              </ul>
             )}
-          </div>
+          </section>
         </div>
 
         {/* Quick Actions */}
-        <div className="card" style={{ marginTop: 20 }}>
-          <div className="card-title" style={{ marginBottom: 16 }}>Quick Actions</div>
+        <section className="card" style={{ marginTop: 20 }} aria-label="Quick actions">
+          <h2 className="card-title" style={{ marginBottom: 16 }}>Quick Actions</h2>
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
             {[
               { label: '📅 Schedule Job', to: '/jobs' },
@@ -154,8 +174,8 @@ export function Dashboard() {
               </button>
             ))}
           </div>
-        </div>
-      </div>
+        </section>
+      </main>
     </>
   )
 }

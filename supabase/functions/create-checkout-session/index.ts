@@ -31,28 +31,21 @@ serve(async (req) => {
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
       payment_method_types: ['card'],
-      line_items: [
-        {
-          price: priceId,
-          quantity: 1,
-        },
-      ],
+      line_items: [{ price: priceId, quantity: 1 }],
       success_url: successUrl,
       cancel_url: cancelUrl,
       customer_email: customerEmail,
       subscription_data: {
-        trial_period_days: 14, // 14-day free trial
+        trial_period_days: 14,
         metadata,
       },
       metadata,
     })
 
+    // Return the hosted checkout URL directly so the frontend can redirect
     return new Response(
-      JSON.stringify({ sessionId: session.id }),
-      {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 200,
-      }
+      JSON.stringify({ url: session.url, sessionId: session.id }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
     )
   } catch (error) {
     console.error('Error creating checkout session:', error)

@@ -496,7 +496,135 @@ tbody tr:hover { background: var(--bg-hover); }
 @media (max-width: 900px) {
   .dashboard-grid { grid-template-columns: 1fr; }
   .form-row { grid-template-columns: 1fr; }
+  /* Sidebar hidden on tablet/mobile — replaced by bottom nav + drawer */
   .sidebar { display: none; }
+}
+
+/* ── iPad (768–1024px) ── */
+@media (max-width: 1024px) {
+  .sidebar { display: none; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr) !important; }
+  .pricing-grid { grid-template-columns: repeat(2, 1fr); }
+  .main { padding-bottom: 72px; } /* room for bottom nav */
+}
+
+/* ── Mobile (< 640px) ── */
+@media (max-width: 640px) {
+  .stats-grid { grid-template-columns: repeat(2, 1fr) !important; }
+  .topbar { padding: 0 16px; }
+  .page-content { padding: 16px; }
+  .modal { margin: 0; border-radius: var(--radius-lg) var(--radius-lg) 0 0; max-height: 92vh; }
+  .modal-overlay { align-items: flex-end; padding: 0; }
+  .detail-panel { width: 100%; }
+  .pricing-grid { grid-template-columns: 1fr; }
+  .table-wrap { font-size: 13px; }
+  th, td { padding: 10px 10px; }
+}
+
+/* ── Mobile menu button (hidden on desktop) ── */
+.mobile-menu-btn {
+  display: none;
+  position: fixed;
+  top: 14px;
+  left: 16px;
+  z-index: 200;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  padding: 8px;
+  cursor: pointer;
+  min-width: 44px;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 1024px) {
+  .mobile-menu-btn { display: flex; }
+  .topbar { padding-left: 68px; } /* offset for hamburger */
+}
+
+/* ── Mobile drawer ── */
+.mobile-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  z-index: 300;
+  backdrop-filter: blur(2px);
+}
+
+.mobile-drawer {
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  width: 280px;
+  background: var(--bg-card);
+  border-right: 1px solid var(--border);
+  z-index: 400;
+  display: flex;
+  flex-direction: column;
+  animation: slideInLeft 0.22s ease;
+  overflow-y: auto;
+}
+
+@keyframes slideInLeft {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+
+/* ── Bottom tab bar ── */
+.bottom-nav {
+  display: none;
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: 64px;
+  background: var(--bg-card);
+  border-top: 1px solid var(--border);
+  z-index: 100;
+  padding: 0 8px;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+@media (max-width: 1024px) {
+  .bottom-nav { display: flex; align-items: stretch; }
+}
+
+.bottom-nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 10px;
+  font-weight: 500;
+  position: relative;
+  min-height: 44px;
+  border-radius: var(--radius-sm);
+  transition: color 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.bottom-nav-item:hover,
+.bottom-nav-item.active { color: var(--primary); }
+
+.bottom-nav-badge {
+  position: absolute;
+  top: 6px;
+  right: calc(50% - 18px);
+  background: var(--danger);
+  color: white;
+  font-size: 9px;
+  font-weight: 700;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
 }
 
 /* ── Pricing ── */
@@ -601,6 +729,33 @@ tbody tr:hover { background: var(--bg-hover); }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--text-subtle); }
+
+/* ── Accessibility: focus rings ── */
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* Remove default outline only when focus-visible is supported */
+:focus:not(:focus-visible) { outline: none; }
+
+/* ── Touch targets: min 44x44px for interactive elements ── */
+button, a, [role="button"], select {
+  min-height: 44px;
+}
+
+.btn-sm { min-height: 36px; }
+.btn-icon { min-width: 44px; min-height: 44px; }
+.badge { min-height: unset; } /* badges are display only */
+.nav-item-badge { min-height: unset; }
+.filter-chip { min-height: 36px; }
+
+/* ── Prevent text size adjustment on iOS ── */
+html { -webkit-text-size-adjust: 100%; }
+
+/* ── Smooth scrolling ── */
+* { scroll-behavior: smooth; }
 
 /* ── Animations ── */
 @keyframes spin { to { transform: rotate(360deg); } }
