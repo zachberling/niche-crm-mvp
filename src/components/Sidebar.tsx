@@ -1,7 +1,7 @@
 import { NavLink } from 'react-router-dom'
 import {
   LayoutDashboard, Users, Activity, CreditCard, Settings,
-  Zap, Wrench, Link2, Calendar,
+  Zap, Wrench, Link2, Calendar, Download,
 } from 'lucide-react'
 import { useCRMStore } from '@/store/crmStore'
 import { useHVACStore } from '@/store/hvacStore'
@@ -14,6 +14,7 @@ const navItems = [
   { to: '/automations', icon: Zap, label: 'Automations' },
   { to: '/integrations', icon: Link2, label: 'Integrations' },
   { to: '/activity', icon: Activity, label: 'Activity' },
+  { to: '/export', icon: Download, label: 'Export' },
   { to: '/pricing', icon: CreditCard, label: 'Pricing' },
   { to: '/settings', icon: Settings, label: 'Settings' },
 ]

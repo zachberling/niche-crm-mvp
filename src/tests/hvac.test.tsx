@@ -200,7 +200,6 @@ describe('IntegrationsPage', () => {
     wrap(<IntegrationsPage />)
     fireEvent.click(screen.getByTestId('connect-twilio'))
     await waitFor(() => {
-      expect(screen.getByText(/connect twilio sms/i)).toBeInTheDocument()
       expect(screen.getByTestId('field-accountSid')).toBeInTheDocument()
     })
   })

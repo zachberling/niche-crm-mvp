@@ -5,6 +5,7 @@ import { useCRMStore } from '@/store/crmStore'
 import { Job, JobStatus, JobType, Priority } from '@/types/hvac'
 import { Contact } from '@/types/contact'
 import { format } from 'date-fns'
+import { fireAutomations, contactContext } from '@/lib/automationEngine'
 
 const STATUS_COLORS: Record<JobStatus, string> = {
   scheduled: 'badge-lead',
@@ -141,7 +142,11 @@ export function JobsPage() {
                         <td>
                           <StatusDropdown
                             value={job.status}
-                            onChange={(s) => updateJob(job.id, { status: s })}
+                            onChange={(s) => {
+                              updateJob(job.id, { status: s })
+                              if (s === 'completed') fireAutomations('job_completed', { ...contactContext(job.contactId), title: job.title, jobId: job.id })
+                              if (s === 'scheduled') fireAutomations('job_scheduled', { ...contactContext(job.contactId), title: job.title, date: format(new Date(job.scheduledAt), 'MMM d'), time: format(new Date(job.scheduledAt), 'h:mm a') })
+                            }}
                           />
                         </td>
                         <td onClick={(e) => e.stopPropagation()}>

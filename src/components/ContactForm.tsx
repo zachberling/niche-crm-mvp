@@ -30,7 +30,7 @@ export function ContactForm({ contact, onClose }: Props) {
     setErrors((p) => { const n = { ...p }; delete n[field]; return n })
   }, [])
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     const result = CreateContactSchema.safeParse(form)
     if (!result.success) {
@@ -42,7 +42,10 @@ export function ContactForm({ contact, onClose }: Props) {
     if (contact) {
       updateContact(contact.id, form)
     } else {
-      addContact(form)
+      const newContact = await addContact(form)
+      // Fire contact_created automation
+      const { fireAutomations: fire, contactContext: ctx } = await import('@/lib/automationEngine')
+      fire('contact_created', ctx(newContact.id))
     }
     onClose()
   }

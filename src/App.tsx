@@ -15,6 +15,7 @@ import { IntegrationsPage } from '@/pages/IntegrationsPage'
 import { ActivityPage } from '@/pages/ActivityPage'
 import { Pricing } from '@/pages/Pricing'
 import { SettingsPage } from '@/pages/SettingsPage'
+import { ExportPage } from '@/pages/ExportPage'
 import { useCRMStore } from '@/store/crmStore'
 import { useHVACStore } from '@/store/hvacStore'
 
@@ -39,6 +40,7 @@ function AppLayout() {
           <Route path="/automations" element={<AutomationsPage />} />
           <Route path="/integrations" element={<IntegrationsPage />} />
           <Route path="/activity" element={<ActivityPage />} />
+          <Route path="/export" element={<ExportPage />} />
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/settings" element={<SettingsPage />} />
         </Routes>
